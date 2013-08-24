@@ -1,5 +1,5 @@
-#source 'https://rubygems.org'
-source 'http://ruby.taobao.org'
+source 'https://rubygems.org'
+#source 'http://ruby.taobao.org'
 ruby '2.0.0'
 #ruby-gemset=rails4
 
