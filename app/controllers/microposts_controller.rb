@@ -4,7 +4,7 @@ class MicropostsController < ApplicationController
 	before_filter :correct_user, only: :destroy
 
 	def create
-		@micropost = current_user.microposts.build(params[:micropost])
+		@micropost = current_user.microposts.build(micropost_params)
 		if @micropost.save
 			flash[:success] = 'Micropost created!'
 			redirect_to root_url
@@ -24,6 +24,10 @@ class MicropostsController < ApplicationController
 		def correct_user
 			@micropost = current_user.microposts.find_by_id(params[:id])
 			permission_denied if @micropost.nil?
+		end
+
+		def micropost_params
+			params.require(:micropost).permit(:content)
 		end
 
 end
