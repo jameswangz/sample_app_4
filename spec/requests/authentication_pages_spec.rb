@@ -60,7 +60,7 @@ describe "Authentication" do
 				end
 
 				describe 'submitting to the update action' do
-					before { put user_path(user) }
+					before { patch user_path(user) }
 					specify { response.should redirect_to(signin_path)  }
 				end
 				
@@ -81,26 +81,16 @@ describe "Authentication" do
 			end
 
 			describe 'when attempting to visit a protected page' do
-				before do
-					visit edit_user_path(user)
-					sign_in user
-				end
+				before { visit edit_user_path(user) }
+				it { should have_title('Sign in')  }
 
 				describe 'after signing in' do
+					before { sign_in user }
+
 					it 'should render the desired protected page' do
 						page.should have_title('Edit user')
 					end
 
-					describe 'submitting a GET request to the Sessions#new action' do
-						before { get signin_path }
-						specify { response.should redirect_to(root_path)  }
-					end
-
-					describe 'submitting a POST request to the Sessions#create action' do
-						before { post sessions_path }
-						specify { response.should redirect_to(root_path)  }
-					end
-				
 					describe 'when signing in again' do
 						before do 
 							sign_out
@@ -112,6 +102,22 @@ describe "Authentication" do
 						end
 					end
 				end
+
+				describe 'after signing in without capybara' do
+					before { sign_in user, no_capybara: true  }
+
+					describe 'submitting a GET request to the Sessions#new action' do
+						before { get signin_path } 
+						specify { response.should redirect_to(root_path)  }
+					end
+
+					describe 'submitting a POST request to the Sessions#create action' do
+						before { post sessions_path } 
+						specify { response.should redirect_to(root_path)  }
+					end
+
+				end
+
 			end
 
 			describe 'in the Microposts controllder' do
@@ -143,7 +149,7 @@ describe "Authentication" do
 		describe 'as wrong user' do
 			let(:user) { FactoryGirl.create(:user)  }
 			let(:wrong_user) { FactoryGirl.create(:user, email: 'wrong@example.com')  }
-			before { sign_in user }
+			before { sign_in user, no_capybara: true }
 
 			describe 'visiting Users#edit page' do
 				before { visit edit_user_path(wrong_user) }
@@ -151,7 +157,7 @@ describe "Authentication" do
 			end
 		
 			describe 'submitting a PUT request to the Users#update action' do
-				before { put user_path(wrong_user) }
+				before { patch user_path(wrong_user) }
 				specify { response.status.should == 403 }
 			end
 		end
@@ -160,7 +166,7 @@ describe "Authentication" do
 			let(:user) { FactoryGirl.create(:user) }
 			let(:non_admin) { FactoryGirl.create(:user) }
 
-			before { sign_in non_admin }
+			before { sign_in non_admin, no_capybara: true }
 
 			describe 'submitting a DELETE request to the Users#destory action' do
 				before { delete user_path(user) }
@@ -171,7 +177,7 @@ describe "Authentication" do
 		describe 'as an admin user' do
 			let(:admin) { FactoryGirl.create(:admin) }
 
-			before { sign_in admin }
+			before { sign_in admin, no_capybara: true }
 		
 			describe 'submitting a DELETE request to delete himself/herself' do
 				before { delete user_path(admin) }
@@ -184,7 +190,7 @@ describe "Authentication" do
 			let(:incorrect_user) { FactoryGirl.create(:user) }
 			let(:micropost) { FactoryGirl.create(:micropost, user: user)  }
 
-			before { sign_in incorrect_user  }
+			before { sign_in incorrect_user, no_capybara: true  }
 
 			describe 'submitting a delete request to the Micropost#destory action' do
 				before { delete micropost_path(micropost)  }
